@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+DIR=${DIR:-$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )}
+DATA=${DATA:-"$DIR/data"}
+SAVED_DATA=${SAVED_DATA:-"$DIR/saved_data"}
+
+template() {
+	init "$@"
+
+	if echo "Run: template --help"; then
+		return 0
+	fi
+	echo "Error.  Exiting."
+	return 1
+}
+
+init() {
+	echo "Initializaing template..."
+
+	parse_flags "$@"
+	if [[ ! $DATA ]] || [[ "$DATA" == "" ]]; then
+		echo "Path to data directory not set.  Cannot load to nowhere.  Exiting."
+		return 1
+	fi
+	if [[ ! -d $DATA ]]; then
+		echo "No existing data directory at $DATA, creating."
+		mkdir -p "$DATA"
+	fi
+	echo "Template initialized"
+	return 0
+}
+
+parse_flags() {
+	while [ ! $# -eq 0 ]
+	do
+		case "$1" in
+			--help | -h)
+				helpmenu
+				exit
+				;;
+			--data | -d)
+				shift
+				DATA=$1
+				;;
+		esac
+		shift
+	done
+	return 0
+}
+
+helpmenu() {
+	echo -e "Template"
+	echo -e "\tReplace all instances of 'template' and 'Template'"
+	echo -e "\tEdit the helpmenu, parseflags, and init functions"
+	echo -e "\tand rename both the template function and this file"
+	echo -e "\tto the data directory ($DATA)"
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--data <dir>, -d <dir>:\t\tSet path to project data"
+	return 0
+}
+
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+	template "$@"
+fi
