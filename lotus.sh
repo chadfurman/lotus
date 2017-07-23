@@ -32,16 +32,22 @@ main_menu() {
 	tput cup $(($HEADER_HEIGHT+2)) $BASE_INDENT 
 	echo '---------------'
 	tput sgr0
-	main_menu_HEADER_HEIGHT=$(($HEADER_HEIGHT+2))
+	menu_header_height=$(($HEADER_HEIGHT+2))
 
-	tput cup $(($main_menu_HEADER_HEIGHT+1)) $BASE_INDENT 
+	tput cup $(($menu_header_height+1)) $BASE_INDENT 
 	echo '1) Attack Menu'
-	tput cup $(($main_menu_HEADER_HEIGHT+2)) $BASE_INDENT 
+	tput cup $(($menu_header_height+2)) $BASE_INDENT 
 	echo '2) Misc. Menu'
-	tput cup $(($main_menu_HEADER_HEIGHT+3)) $BASE_INDENT 
+	tput cup $(($menu_header_height+3)) $BASE_INDENT 
+	echo '3) Clear Project'
+	tput cup $(($menu_header_height+4)) $BASE_INDENT 
+	echo '4) Save Current Project'
+	tput cup $(($menu_header_height+5)) $BASE_INDENT 
+	echo '5) Load Saved Project'
+	tput cup $(($menu_header_height+6)) $BASE_INDENT 
 	echo '0) Exit'
 	tput cup "$PROMPT_LINE" 0
-	read -p 'Enter selection (1-12, 0 to exit): ' selection
+	read -p 'Enter selection: ' selection
 	handle_main_menu "$selection"
 	return $?
 }
@@ -53,11 +59,23 @@ handle_main_menu() {
 		;;
 	1) 
 		source $LIB/attack_menu.sh
-		attack_menu	
+		attack_menu
 		;;
 	2) 
 		source $LIB/misc_menu.sh 
-		misc_menu	
+		misc_menu
+		;;
+	3) 
+		source $LIB/clear_project.sh 
+		clear_project
+		;;
+	4) 
+		source $LIB/save_project.sh 
+		save_project
+		;;
+	5) 
+		source $LIB/load_project.sh 
+		load_project
 		;;
 	*) echo "Invalid selection" 
 		;;
@@ -65,4 +83,6 @@ handle_main_menu() {
 	return $?
 }
 
-main
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+	main "$@"
+fi
