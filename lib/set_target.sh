@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
+PLUGIN_NAME="set_target"
+PLUGIN_DATA="$DATA/$PLUGIN_NAME"
+HOST_DATA="$PLUGIN_DATA/host"
+DOMAIN_DATA="$PLUGIN_DATA/domain"
+EMAIL_DATA="$PLUGIN_DATA/email"
+BINARY_DATA="$PLUGIN_DATA/binary"
+WEBSITE_DATA="$PLUGIN_DATA/website"
 
 set_target() {
+	init
+
 	tput setaf 69
 	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
 	tput ed
@@ -33,31 +42,42 @@ set_target() {
 	return 1
 }
 
+init() {
+	if [ ! -d "$PLUGIN_DATA" ]; then
+		mkdir -p "$PLUGIN_DATA"
+		touch "$PLUGIN_DATA/host"
+		touch "$PLUGIN_DATA/domain"
+		touch "$PLUGIN_DATA/email"
+		touch "$PLUGIN_DATA/binary"
+		touch "$PLUGIN_DATA/website"
+	fi;
+}
+
 handle_set_target() {
 	selection="$1"
 	tput el1
 	case $selection in
-		1) read -p 'Enter an IP address or CIDR notation: ' host && echo "$host" > "$CONFIG/host"
+		1) read -p 'Enter an IP address or CIDR notation: ' host && echo "$host" > "$HOST_DATA"
 			;;
-		2) read -p 'Enter domain name to enumerate: ' domain && echo "$domain" > "$CONFIG/domain"
+		2) read -p 'Enter domain name to enumerate: ' domain && echo "$domain" > "$DOMAIN_DATA"
 			;;
-		3) read -p 'Enter email to spearfish: ' email && echo "$email" > "$CONFIG/email"
+		3) read -p 'Enter email to spearfish: ' email && echo "$email" > "$EMAIL_DATA"
 			;;
-		4) read -p 'Enter path to binary for fuzzing: ' binary && echo "$binary" > "$CONFIG/binary"
+		4) read -p 'Enter path to binary for fuzzing: ' binary && echo "$binary" > "$BINARY_DATA"
 			;;
-		5) read -p 'Enter URL of website for SQLi/XSS/CSRF scanning: ' website && echo "$host" > "$CONFIG/host"
+		5) read -p 'Enter URL of website for SQLi/XSS/CSRF scanning: ' website && echo "$host" > "$WEBSITE_DATA"
 			;;
-		0) return 1
+		[0,q]) return 1
 			;;
 		*) echo "Invalid selection"
 			;;
 	esac
 	echo "New target information: "
-	echo "Host: $(cat "$"
-	echo "Domain: $DOMAIN"
-	echo "Email: $EMAIL"
-	echo "Binary: $BINARY"
-	echo "Website: $WEBSITE"
+	echo "Host: $(cat "$HOST_DATA")"
+	echo "Domain: $(cat "$DOMAIN_DATA")"
+	echo "Email: $(cat "$EMAIL_DATA")"
+	echo "Binary: $(cat "$BINARY_DATA")"
+	echo "Website: $(cat "$WEBSITE_DATA")"
 	return 0
 
 }
