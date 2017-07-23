@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+VERSION="0.0.1"
+DATA="$DIR/data"
+LIB="$DIR/lib"
+BASE_INDENT=2
+HEADER_HEIGHT=3
+PROMPT_LINE=20
