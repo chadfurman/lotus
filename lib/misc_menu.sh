@@ -67,6 +67,6 @@ handle_misc_menu() {
 	return 0
 }
 
-if [[ $_ != $0 ]]; then 
+if [[ -t 1 && $_ != $0 ]]; then 
 	misc_menu "$@"
 fi
