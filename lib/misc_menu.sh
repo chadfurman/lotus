@@ -31,7 +31,7 @@ misc_menu() {
 	tput cup $(($misc_menu_header_height+4)) $BASE_INDENT 
 	echo '0) Back to main menu'
 	tput cup "$PROMPT_LINE" 0
-	read -p 'Enter selection (1-3, 0 to go back to main menu): ' selection
+	read -p 'Enter selection: ' selection
 	
 	if handle_misc_menu "$selection"; then
 		misc_menu
