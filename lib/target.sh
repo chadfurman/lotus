@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
+DIR=${DIR:-$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )}
+DATA=${DATA:-"$DIR/data"}
 HEADER_HEIGHT=${HEADER_HEIGHT:-0}
 BASE_INDENT=${BASE_INDENT:-0}
 PROMPT_LINE=${PROMPT_LINE:-20}
-DATA=${DATA:-'./'}
+TARGET_LINE=${TARGET_LINE:-10}
  
-PLUGIN_NAME="set_target"
+PLUGIN_NAME="target"
 PLUGIN_DATA="$DATA/$PLUGIN_NAME"
 HOST_DATA="$PLUGIN_DATA/host"
 DOMAIN_DATA="$PLUGIN_DATA/domain"
@@ -12,7 +14,7 @@ EMAIL_DATA="$PLUGIN_DATA/email"
 BINARY_DATA="$PLUGIN_DATA/binary"
 WEBSITE_DATA="$PLUGIN_DATA/website"
 
-set_target() {
+target() {
 	init
 
 	tput setaf 69
@@ -23,6 +25,8 @@ set_target() {
 	echo '---------------'
 	tput sgr0
 	menu_header_height=$(($HEADER_HEIGHT+2))
+
+	show_target
 
 	tput cup $(($menu_header_height+1)) $BASE_INDENT 
 	echo '1) IP or CIDR (for scanning, exploitation, etc)'
@@ -35,12 +39,11 @@ set_target() {
 	tput cup $(($menu_header_height+5)) $BASE_INDENT 
 	echo '5) Website (for webapp attacks)'
 	tput cup $(($menu_header_height+6)) $BASE_INDENT 
-	echo '0) Back to attack menu'
+	echo '0) Back out'
 	tput cup "$PROMPT_LINE" 0
-	read -p 'Enter selection (1-5, 0 to go back to attack menu): ' selection
-	if handle_set_target "$selection"; then
-		read -p 'Press return to continue...'
-		set_target
+	read -p 'Enter selection: ' selection
+	if handle_target "$selection"; then
+		target
 		return $?
 	fi
 	return 1
@@ -49,17 +52,30 @@ set_target() {
 init() {
 	tput cup $HEADER_HEIGHT 0
 	tput ed
+	if [ ! -d "$DATA" ]; then
+		mkdir -p "$DATA"
+	fi
 	if [ ! -d "$PLUGIN_DATA" ]; then
 		mkdir -p "$PLUGIN_DATA"
-		touch "$PLUGIN_DATA/host"
-		touch "$PLUGIN_DATA/domain"
-		touch "$PLUGIN_DATA/email"
-		touch "$PLUGIN_DATA/binary"
-		touch "$PLUGIN_DATA/website"
+		touch "$HOST_DATA"
+		touch "$DOMAIN_DATA"
+		touch "$EMAIL_DATA"
+		touch "$BINARY_DATA"
+		touch "$WEBSITE_DATA"
 	fi;
 }
 
-handle_set_target() {
+show_target() {
+	tput cup $TARGET_LINE $BASE_INDENT 
+	echo "Host: $(cat "$HOST_DATA")"
+	echo "Domain: $(cat "$DOMAIN_DATA")"
+	echo "Email: $(cat "$EMAIL_DATA")"
+	echo "Binary: $(cat "$BINARY_DATA")"
+	echo "Website: $(cat "$WEBSITE_DATA")"
+	return 0
+}
+
+handle_target() {
 	selection="$1"
 	tput el1
 	case $selection in
@@ -78,12 +94,10 @@ handle_set_target() {
 		*) echo "Invalid selection"
 			;;
 	esac
-	echo "New target information: "
-	echo "Host: $(cat "$HOST_DATA")"
-	echo "Domain: $(cat "$DOMAIN_DATA")"
-	echo "Email: $(cat "$EMAIL_DATA")"
-	echo "Binary: $(cat "$BINARY_DATA")"
-	echo "Website: $(cat "$WEBSITE_DATA")"
 	return 0
 
 }
+
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+	target "$@"
+fi
