@@ -11,7 +11,7 @@ main() {
 		tput clear
 		header
 		if main_menu; then
-			read -p "Press any key to continue..."
+			read -p "Press return to continue..."
 		fi
 	done;
 }

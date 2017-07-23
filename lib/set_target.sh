@@ -39,7 +39,7 @@ set_target() {
 	tput cup "$PROMPT_LINE" 0
 	read -p 'Enter selection (1-5, 0 to go back to attack menu): ' selection
 	if handle_set_target "$selection"; then
-		read -p 'Press any key to continue...'
+		read -p 'Press return to continue...'
 		set_target
 		return $?
 	fi

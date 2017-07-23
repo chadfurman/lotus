@@ -9,6 +9,8 @@ colors() {
 	done;
 	echo ""
 	echo "ANSII Colors 0-256"
+	read -p "Press return to continue..."
+	return 0
 }
 
 if [[ $_ == $0 ]]; then 
