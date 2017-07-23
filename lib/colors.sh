@@ -13,6 +13,6 @@ colors() {
 	return 0
 }
 
-if [[ $_ == $0 ]]; then 
+if [[ "$0" == "$BASH_SOURCE" ]]; then
 	colors "$@"
 fi

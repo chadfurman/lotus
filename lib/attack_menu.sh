@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
+DIR=${DIR:-"$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"}
+HEADER_HEIGHT=${HEADER_HEIGHT:-0}
+BASE_INDENT=${BASE_INDENT:-0}
+PROMPT_LINE=${PROMPT_LINE:-20}
+LIB=${LIB:-"$DIR"}
+
 attack_menu() {
 	init
+
+	if [ "$1" ]; then
+		handle_misc_menu "$1"
+		return $?
+	fi
 
 	tput setaf 69
 	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
@@ -57,8 +68,8 @@ handle_attack_menu() {
 	[0,q]) return 1
 		;;
 	1) 
-		source $LIB/set_target.sh
-		set_target
+		source "$LIB/target.sh"
+		target
 		;;
 	2) source "$LIB/passive_information_gathering.sh" 
 		passive_information_gathering
@@ -85,16 +96,20 @@ handle_attack_menu() {
 		web_application_attacks
 		;;
 	10) source "$LIB/networking_pivoting_and_tunneling.sh" 
-		 networking_pivoting_and_tunneling
+		networking_pivoting_and_tunneling
 		;;
 	11) source "$LIB/metasploit_framework.sh" 
-		 metasploit_framework
+		metasploit_framework
 		;;
 	12) source "$LIB/bypassing_antivirus.sh" 
-		 bypassing_antivirus
+		bypassing_antivirus
 		;;
 	*) echo "Invalid selection" 
 		;;
 	esac
 	return 0
 }
+
+if [[ $0 == "$BASH_SOURCE" ]]; then
+	attack_menu "$@"
+fi

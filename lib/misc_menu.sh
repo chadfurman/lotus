@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DIR=${DIR:-"$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"}
+DIR=${DIR:-"$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"}
 HEADER_HEIGHT=${HEADER_HEIGHT:-0}
 BASE_INDENT=${BASE_INDENT:-0}
 PROMPT_LINE=${PROMPT_LINE:-10}
@@ -51,8 +51,7 @@ handle_misc_menu() {
 	case $selection in
 	[0,q]) return 1
 		;;
-	1) 
-		source "$LIB/colors.sh"
+	1) source "$LIB/colors.sh"
 		colors
 		;;
 	2) source "$LIB/encode.sh" 
@@ -67,6 +66,6 @@ handle_misc_menu() {
 	return 0
 }
 
-if [[ -t 1 && $_ != $0 ]]; then 
+if [[ "$0" == "$BASH_SOURCE" ]]; then
 	misc_menu "$@"
 fi
