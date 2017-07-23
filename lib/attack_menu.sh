@@ -39,8 +39,11 @@ attack_menu() {
 	echo '0) Back to main menu'
 	tput cup "$PROMPT_LINE" 0
 	read -p 'Enter selection (1-12, 0 to exit): ' selection
-	handle_attack_menu "$selection"
-	return $?
+	if handle_attack_menu "$selection"; then
+		attack_menu
+		return $?
+	fi
+	return 1
 }
 
 init() {
@@ -93,5 +96,5 @@ handle_attack_menu() {
 	*) echo "Invalid selection" 
 		;;
 	esac
-	attack_menu
+	return 0
 }

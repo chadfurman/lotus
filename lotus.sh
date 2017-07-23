@@ -54,15 +54,15 @@ handle_main_menu() {
 	1) 
 		source $LIB/attack_menu.sh
 		attack_menu	
-		return $?
 		;;
-	2) source "$LIB/misc_menu.sh" 
+	2) 
+		source $LIB/misc_menu.sh 
 		misc_menu	
-		return $?
 		;;
 	*) echo "Invalid selection" 
 		;;
 	esac
+	return $?
 }
 
 main

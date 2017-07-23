@@ -32,10 +32,13 @@ misc_menu() {
 	echo '0) Back to main menu'
 	tput cup "$PROMPT_LINE" 0
 	read -p 'Enter selection (1-3, 0 to go back to main menu): ' selection
-	if ! handle_misc_menu "$selection"; then
+	
+	if handle_misc_menu "$selection"; then
 		misc_menu
+		return $?
 	fi
-	return $?
+
+	return 1
 }
 
 init() {
