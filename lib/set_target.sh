@@ -19,26 +19,25 @@ set_target() {
 	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
 	tput ed
 	echo "Set Target"
-	tput rev
 	tput cup $(($HEADER_HEIGHT+2)) $BASE_INDENT 
 	echo '---------------'
 	tput sgr0
-	main_menu_header_height=$(($HEADER_HEIGHT+2))
+	menu_header_height=$(($HEADER_HEIGHT+2))
 
-	tput cup $(($main_menu_header_height+1)) $BASE_INDENT 
+	tput cup $(($menu_header_height+1)) $BASE_INDENT 
 	echo '1) IP or CIDR (for scanning, exploitation, etc)'
-	tput cup $(($main_menu_header_height+2)) $BASE_INDENT 
+	tput cup $(($menu_header_height+2)) $BASE_INDENT 
 	echo '2) Domain (for subdomain brute-forcing and email harvesting)'
-	tput cup $(($main_menu_header_height+3)) $BASE_INDENT 
+	tput cup $(($menu_header_height+3)) $BASE_INDENT 
 	echo '3) Email (for social engineering)'
-	tput cup $(($main_menu_header_height+4)) $BASE_INDENT 
+	tput cup $(($menu_header_height+4)) $BASE_INDENT 
 	echo '4) Binary (for fuzzing)'
-	tput cup $(($main_menu_header_height+5)) $BASE_INDENT 
+	tput cup $(($menu_header_height+5)) $BASE_INDENT 
 	echo '5) Website (for webapp attacks)'
-	tput cup $(($main_menu_header_height+6)) $BASE_INDENT 
-	echo '0) Back to main menu'
+	tput cup $(($menu_header_height+6)) $BASE_INDENT 
+	echo '0) Back to attack menu'
 	tput cup "$PROMPT_LINE" 0
-	read -p 'Enter selection (1-5, 0 to go back to main menu): ' selection
+	read -p 'Enter selection (1-5, 0 to go back to attack menu): ' selection
 	if handle_set_target "$selection"; then
 		read -p 'Press any key to continue...'
 		set_target
@@ -48,6 +47,8 @@ set_target() {
 }
 
 init() {
+	tput cup $HEADER_HEIGHT 0
+	tput ed
 	if [ ! -d "$PLUGIN_DATA" ]; then
 		mkdir -p "$PLUGIN_DATA"
 		touch "$PLUGIN_DATA/host"
