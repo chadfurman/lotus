@@ -69,9 +69,13 @@ init() {
 show_target() {
 	tput cup $TARGET_LINE $BASE_INDENT 
 	echo "Host: $(cat "$HOST_DATA")"
+	tput cup $((TARGET_LINE+1)) $BASE_INDENT 
 	echo "Domain: $(cat "$DOMAIN_DATA")"
+	tput cup $((TARGET_LINE+2)) $BASE_INDENT 
 	echo "Email: $(cat "$EMAIL_DATA")"
+	tput cup $((TARGET_LINE+3)) $BASE_INDENT 
 	echo "Binary: $(cat "$BINARY_DATA")"
+	tput cup $((TARGET_LINE+4)) $BASE_INDENT 
 	echo "Website: $(cat "$WEBSITE_DATA")"
 	return 0
 }
