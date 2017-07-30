@@ -14,7 +14,6 @@ save_project() {
 
 	if tar -C "$DATA" -cvzf "$SAVED_DATA/$NAME.$(date +%s).tar.gz" "./" ; then
 		echo "Saved $SAVED_DATA/$NAME.$(date +%s).tar.gz"
-		read -p "Press return to continue..."
 		return 0
 	fi
 	echo "Error creating save.  Exiting."
