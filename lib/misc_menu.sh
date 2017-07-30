@@ -7,7 +7,7 @@ PROMPT_LINE=${PROMPT_LINE:-10}
 LIB=${LIB:-"$DIR"}
 
 misc_menu() {
-	init
+	init "$@"
 
 	if [ "$1" ]; then
 		handle_misc_menu "$1"
@@ -42,6 +42,7 @@ misc_menu() {
 }
 
 init() {
+	parse_flags "$@"
 	tput cup $HEADER_HEIGHT 0
 	tput ed
 }
@@ -64,6 +65,33 @@ handle_misc_menu() {
 		;;
 	esac
 	return 0
+}
+
+parse_flags() {
+	while [ ! $# -eq 0 ]
+	do
+		case "$1" in
+			--help | -h)
+				helpmenu
+				exit
+				;;
+			--menu | -m)
+			    shift
+				handle_misc_menu "$1"
+				exit
+				;;
+		esac
+		shift
+	done
+}
+
+helpmenu() {
+	echo -e "Misc Menu"
+	echo -e "A set of miscellaneous tools that can come in handy when dealing with linuxy stuff."
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--menu <num>, -m <num>:\t\t\tSelect menu item <num>"
 }
 
 if [[ "$0" == "$BASH_SOURCE" ]]; then

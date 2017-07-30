@@ -3,14 +3,16 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOTUS_DIR=DIR
 CONFIG="$DIR/config"
 source "$CONFIG/globals.sh"
 
-main() {
+lotus() {
+    init "$@"
 	while true; do
 		tput clear
 		header
-		if main_menu; then
+		if lotus_menu; then
 			read -p "Press return to continue..."
 		fi
 	done;
@@ -25,7 +27,7 @@ header() {
 	tput sgr0
 }
 
-main_menu() {
+lotus_menu() {
 	tput setaf 69
 	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
 	echo "Main Menu"
@@ -48,11 +50,11 @@ main_menu() {
 	echo '0) Exit'
 	tput cup "$PROMPT_LINE" 0
 	read -p 'Enter selection: ' selection
-	handle_main_menu "$selection"
+	handle_lotus_menu "$selection"
 	return $?
 }
 
-handle_main_menu() {
+handle_lotus_menu() {
 	selection="$1"
 	case $selection in
 	[0,q]) exit 0
@@ -83,6 +85,47 @@ handle_main_menu() {
 	return $?
 }
 
+init() {
+    parse_flags "$@"
+    if [[ ! -w $LOTUS_DIR ]]; then
+        echo -n "Lotus requires write-permissions to this directory: "
+        echo -e "$LOTUS_DIR"
+        echo -e "Exiting."
+        exit 1;
+    fi
+}
+
+parse_flags() {
+	while [ ! $# -eq 0 ]
+	do
+		case "$1" in
+			--help | -h)
+				helpmenu
+				exit
+				;;
+			--menu | -m)
+			    shift
+				handle_misc_menu "$1"
+				exit
+				;;
+			--dir | -d)
+			    shift
+			    $LOTUS_DIR="$1"
+		esac
+		shift
+	done
+}
+
+helpmenu() {
+	echo -e "Lotus"
+	echo -e "A script runner and library for system administration and auditing"
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--menu <num>, -m <num>:\t\t\tSelect menu item <num>"
+	echo -e "\t--dir <path>, -d <path>:\t\t\tSet the folder to treat as $LOTUS_DIR for the sake of $LIB and $DATA etc (there be dragons)"
+}
+
 if [[ "$0" == "$BASH_SOURCE" ]]; then
-	main "$@"
+	lotus "$@"
 fi

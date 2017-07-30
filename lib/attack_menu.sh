@@ -7,7 +7,7 @@ PROMPT_LINE=${PROMPT_LINE:-20}
 LIB=${LIB:-"$DIR"}
 
 attack_menu() {
-	init
+	init "$@"
 
 	if [ "$1" ]; then
 		handle_misc_menu "$1"
@@ -58,6 +58,7 @@ attack_menu() {
 }
 
 init() {
+    parse_flags "$@"
 	tput cup $HEADER_HEIGHT 0
 	tput ed
 }
@@ -108,6 +109,33 @@ handle_attack_menu() {
 		;;
 	esac
 	return 0
+}
+
+parse_flags() {
+	while [ ! $# -eq 0 ]
+	do
+		case "$1" in
+			--help | -h)
+				helpmenu
+				exit
+				;;
+			--menu | -m)
+			    shift
+				handle_misc_menu "$1"
+				exit
+				;;
+		esac
+		shift
+	done
+}
+
+helpmenu() {
+	echo -e "Attack Menu"
+	echo -e "A set of aggressive tools for exploitation of websites, binary files, servers, etc."
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--menu <num>, -m <num>:\t\t\tSelect this menu item"
 }
 
 if [[ $0 == "$BASH_SOURCE" ]]; then

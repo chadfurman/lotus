@@ -15,7 +15,7 @@ BINARY_DATA="$PLUGIN_DATA/binary"
 WEBSITE_DATA="$PLUGIN_DATA/website"
 
 target() {
-	init
+	init "$@"
 
 	tput setaf 69
 	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
@@ -50,6 +50,7 @@ target() {
 }
 
 init() {
+    parse_flags "$@"
 	tput cup $HEADER_HEIGHT 0
 	tput ed
 	if [ ! -d "$DATA" ]; then
@@ -96,6 +97,59 @@ handle_target() {
 	esac
 	return 0
 
+}
+
+parse_flags() {
+	while [ ! $# -eq 0 ]
+	do
+		case "$1" in
+			--help | -h)
+				helpmenu
+				exit
+				;;
+			--menu | -m)
+			    shift
+				handle_misc_menu "$1"
+				exit
+				;;
+			--host)
+			    shift
+			    echo "$1" > "$HOST_DATA"
+				exit
+			    ;;
+			--domain)
+			    shift
+			    echo "$1" > "$DOMAIN_DATA"
+				exit
+			    ;;
+			--email)
+			    shift
+			    echo "$1" > "$EMAIL_DATA"
+				exit
+			    ;;
+			--binary)
+			    shift
+			    echo "$1" > "$BINARY_DATA"
+				exit
+			    ;;
+			--website)
+			    shift
+			    echo "$1" > "$WEBSITE_DATA"
+				exit
+			    ;;
+		esac
+		shift
+	done
+}
+
+helpmenu() {
+	echo -e "Target"
+	echo -e "Convenient central store for details on the location of targets"
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--menu <num>, -m <num>:\t\t\tSelect this menu item"
+	echo -e "\t--<host|domain|email|binary|website> <value>:\t\t\tSet the target item (i.e. host, domain, etc) to <value>"
 }
 
 if [[ "$0" == "$BASH_SOURCE" ]]; then

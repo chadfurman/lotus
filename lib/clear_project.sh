@@ -2,8 +2,11 @@
 DIR=${DIR:-$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )}
 DATA=${DATA:-"$DIR/data"}
 
+FORCE=false
+
 clear_project() {
 	echo "Clearing project..."
+	init "$@"
 	if [[ ! $DATA ]] || [[ "$DATA" == "" ]]; then
 		echo "Data variable is not set."
 		return 1
@@ -13,8 +16,10 @@ clear_project() {
 		echo "$DATA does not exist. Exiting."
 		return 2
 	fi
-	read -p "Are you sure? Type 'clear' to proceed: " confirm
-	if [[ "$confirm" =~ 'clear' ]]; then
+    if  [[ "${FORCE}" == false ]]; then
+        read -p "Are you sure? Type 'clear' to proceed: " confirm
+    fi
+	if [[ "$confirm" =~ 'clear' || "${FORCE}" == true ]]; then
 		rm -rf $DATA
 		echo "Deleted."
 		return $?
@@ -22,6 +27,35 @@ clear_project() {
 		echo "Cancelled."
 	fi
 	return 0
+}
+
+init() {
+	parse_flags "$@"
+}
+
+parse_flags() {
+	while [ ! $# -eq 0 ]
+	do
+		case "$1" in
+			--help | -h)
+				helpmenu
+				exit
+				;;
+			--force | -f)
+				FORCE=true
+				;;
+		esac
+		shift
+	done
+}
+
+helpmenu() {
+	echo -e "Clear Project"
+	echo -e "Prompt to confirm, and then delete the data directory"
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--force, -f:\tDon't prompt to confirm (DANGEROUS)"
 }
 
 if [[ "$0" == "$BASH_SOURCE" ]]; then
