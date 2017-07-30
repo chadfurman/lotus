@@ -87,7 +87,7 @@ parse_flags() {
 ```
 6) Plugins must have a helpmenu function that details their purpose and any arguments they take.
 
-#### Plugins with menus
+#### Menus
 A great example of a plugin with a menu is the target.sh plugin.
 
 If the plugin has a menu, there are a additional conventions:
@@ -113,5 +113,287 @@ If the plugin has a menu, there are a additional conventions:
 6) The "handle_some_plugin()" menu returns 0 to loop and 1 to go up a menu (or exit if called directly)
 7) Plugins with menus must be able to take the menu selection as an argument when called directly
 
+#### Dependencies
+A great example of a plugin with a dependency is the pingsweep.sh plugin
 
+Plugins can specify dependencies without much fuss:
+1) Check for the existance of the dependency in $LOTUS_DIR/lib 
+    * If it's not there, prompt the user to download it
+    * If the user says yes, wget/curl/copy/extract the plugin to lib
+2) Check if the dependency generated the necessary output in $LOTUS_DIR/data/plugin_name/required_output_file
+    * If it's not there, prompt the user to run the dependency with a default config
+    * Optionally, prompt the user for the dependency's arguments
+    * If allowing the user to customize dependency arguments, expose those customizations as flags
+    
         
+## Example Plugin
+
+The following is code from a version of the `misc_menu.sh` plugin.  Let's take a look and then break it down
+
+```
+#!/usr/bin/env bash
+
+DIR=${DIR:-"$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"}
+HEADER_HEIGHT=${HEADER_HEIGHT:-0}
+BASE_INDENT=${BASE_INDENT:-0}
+PROMPT_LINE=${PROMPT_LINE:-10}
+LIB=${LIB:-"$DIR"}
+
+misc_menu() {
+	init "$@"
+
+	if [ "$1" ]; then
+		handle_misc_menu "$1"
+		return $?
+	fi
+
+	tput setaf 69
+	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
+	echo "Misc. Menu"
+	tput cup $(($HEADER_HEIGHT+2)) $BASE_INDENT 
+	echo '---------------'
+	tput sgr0
+	misc_menu_header_height=$(($HEADER_HEIGHT+2))
+
+	tput cup $(($misc_menu_header_height+1)) $BASE_INDENT 
+	echo '1) Colors'
+	tput cup $(($misc_menu_header_height+2)) $BASE_INDENT 
+	echo '2) Encode'
+	tput cup $(($misc_menu_header_height+3)) $BASE_INDENT 
+	echo '3) Decode'
+	tput cup $(($misc_menu_header_height+4)) $BASE_INDENT 
+	echo '0) Back to main menu'
+	tput cup "$PROMPT_LINE" 0
+	read -p 'Enter selection: ' selection
+	
+	if handle_misc_menu "$selection"; then
+		misc_menu
+		return $?
+	fi
+
+	return 1
+}
+
+init() {
+	parse_flags "$@"
+	tput cup $HEADER_HEIGHT 0
+	tput ed
+}
+
+handle_misc_menu() {
+	selection="$1"
+	case $selection in
+	[0,q]) return 1
+		;;
+	1) source "$LIB/colors.sh"
+		colors
+		;;
+	2) source "$LIB/encode.sh" 
+		encode
+		;;
+	3) source "$LIB/decode.sh" 
+		decode
+		;;
+	*) echo "Invalid selection" 
+		;;
+	esac
+	return 0
+}
+
+parse_flags() {
+	while [ ! $# -eq 0 ]
+	do
+		case "$1" in
+			--help | -h)
+				helpmenu
+				exit
+				;;
+			--menu | -m)
+			    shift
+				handle_misc_menu "$1"
+				exit
+				;;
+		esac
+		shift
+	done
+}
+
+helpmenu() {
+	echo -e "Misc Menu"
+	echo -e "A set of miscellaneous tools that can come in handy when dealing with linuxy stuff."
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--menu <num>, -m <num>:\t\t\tSelect menu item <num>"
+}
+
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+	misc_menu "$@"
+fi
+
+```
+
+#### init
+`#!/usr/bin/env bash` Is the mandatory first line of all plugins
+
+#### vars
+Then we have the variable definitions
+```
+DIR=${DIR:-"$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"}
+HEADER_HEIGHT=${HEADER_HEIGHT:-0}
+BASE_INDENT=${BASE_INDENT:-0}
+PROMPT_LINE=${PROMPT_LINE:-10}
+LIB=${LIB:-"$DIR"}
+```
+These are the global variables we're pulling in from config/globals.sh -- we define them here with defaults so we can run the script from the command-line as well, not just through Lotus
+
+DIR -- the folder where lib and data reside (note this plugin does not create data)
+HEADER_HEIGHT -- the height of the LOTUS header.  Defaults to 0 when called from CLI
+BASE_INDENT -- how far to indent each line
+PROMPT_LINE -- the line number to place the menu selection prompt
+LIB -- Path to the plugin folder so we can easily call other plugins
+
+#### misc_menu
+Next is the primary function of this plugin, `misc_menu`
+```
+misc_menu() {
+	init "$@"
+
+	tput setaf 69
+	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
+	echo "Misc. Menu"
+	tput cup $(($HEADER_HEIGHT+2)) $BASE_INDENT 
+	echo '---------------'
+	tput sgr0
+	misc_menu_header_height=$(($HEADER_HEIGHT+2))
+
+	tput cup $(($misc_menu_header_height+1)) $BASE_INDENT 
+	echo '1) Colors'
+	tput cup $(($misc_menu_header_height+2)) $BASE_INDENT 
+	echo '2) Encode'
+	tput cup $(($misc_menu_header_height+3)) $BASE_INDENT 
+	echo '3) Decode'
+	tput cup $(($misc_menu_header_height+4)) $BASE_INDENT 
+	echo '0) Back to main menu'
+	tput cup "$PROMPT_LINE" 0
+	read -p 'Enter selection: ' selection
+	
+	if handle_misc_menu "$selection"; then
+		misc_menu
+		return $?
+	fi
+
+	return 1
+}
+```
+
+We start out by passing all arguments given to this script into the init method with: `init "$@"`
+
+`tput setaf 69` -- Here we're setting the color for text that gets printed out after this line
+
+`tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT` -- We're placing the cursor one line below the main header and $BASE_INDENT columns in from the left
+then we echo out the menu, print a series of dashes, and reset all tput settings with `tput sgr0`
+
+We define a helper variable, `misc_menu_header_height=$(($HEADER_HEIGHT+2))` so we have a convenient offset for the plugin menu and menu header, then we print out the menu with the following block:
+
+```
+tput cup $(($misc_menu_header_height+1)) $BASE_INDENT 
+echo '1) Colors'
+tput cup $(($misc_menu_header_height+2)) $BASE_INDENT 
+echo '2) Encode'
+tput cup $(($misc_menu_header_height+3)) $BASE_INDENT 
+echo '3) Decode'
+tput cup $(($misc_menu_header_height+4)) $BASE_INDENT 
+echo '0) Back to main menu'
+```
+
+For this block of text, we need to read in a selection, so we put the cursor on the prompt line offset with `tput cup "$PROMPT_LINE" 0` and then prompt for and read in the user's selection with `read -p 'Enter selection: ' selection`
+	
+Given the selection, we pass it to the menu handler, `handle_misc_menu`, which will return 0 to loop/recurse, or 1 to exit
+```
+	if handle_misc_menu "$selection"; then
+		misc_menu
+		return $?
+	fi
+
+	return 1
+```
+
+#### init
+In other plugins, init will do directory checking/creation, dependency assertion/downloading/executing, and more.
+For our basic plugin, we simply parse out any command-line flags with `parse_flags "$@"` and then clear everything below the header with:
+
+```
+	tput cup $HEADER_HEIGHT 0
+	tput ed
+```
+
+#### handle_misc_menu
+`selection="$1"` -- we assume that the function is called with the selection as the first argument.
+
+We then do a case statement `case $selection` which results in:
+ 1) sourcing plugins and calling their functions
+ ```
+	1) source "$LIB/colors.sh"
+		colors
+		;;
+ ```
+ 
+ 2) exiting
+ ```
+	[0,q]) return 1
+		;;
+```
+
+ 3) or declaring invalid selection
+```
+	*) echo "Invalid selection" 
+		;;
+```
+
+After menu selection, `return 0` triggers the loop to recurse, whereas `return 1` would trigger the menu loop to exit.
+ 
+
+#### parse_flags
+Here, we iterate over the command line arguments stored in `$#` and check each one against a set of expected options.  We iterate over the array using shift to pop off the elements we're done with, leaving $1 as the only interesting argument at each step.
+
+`while [ ! $# -eq 0 ]` -- loop until we don't have any args left
+`case "$1" in` -- check the first (i.e. current) argument against these patterns
+```
+--help | -h) # current argument is either --help or -h?
+    helpmenu # trigger the helpmenu function
+    exit     # ... exit...
+    ;;       # end of this case
+--menu | -m) #  current argument is menu?
+    shift    # okay, get rid of it, we want what's next
+    handle_misc_menu "$1" # what's next is the menu selection, pass it along
+    exit     # done
+    ;;       # end of this case
+esac         # end of whole case statement
+shift        # get rid of the current argument, we're done with it
+done         # loop
+}
+```
+
+
+#### helpmenu
+All plugins have a helpmenu.  The first printed line is the plugin name, followed by a short description, and then optional arguments.  
+```
+helpmenu() {
+	echo -e "Misc Menu"
+	echo -e "A set of miscellaneous tools that can come in handy when dealing with linuxy stuff."
+	echo -e ""
+	echo -e "Optional arguments:"
+	echo -e "\t--help, -h:\t\t\tThis message"
+	echo -e "\t--menu <num>, -m <num>:\t\t\tSelect menu item <num>"
+}
+```
+
+#### flexible suffix
+The bit right at the very end makes it so that the main method of the plugin is called automatically when invoked on the CLI, but must be called manually when sourcing the file.  This is to give plugin devs more control over the loading and calling order of things.
+
+```
+if [[ "$0" == "$BASH_SOURCE" ]]; then  # When calle dfrom the CLI, $0 and $BASH_SOURCE are equal
+	misc_menu "$@" # Just invoke the main function of the plugin when called from CLI directly
+fi
+```
