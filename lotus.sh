@@ -3,7 +3,7 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-LOTUS_DIR=DIR
+LOTUS_DIR="$DIR"
 CONFIG="$DIR/config"
 source "$CONFIG/globals.sh"
 
@@ -87,7 +87,7 @@ handle_lotus_menu() {
 
 init() {
     parse_flags "$@"
-    if [[ ! -w $LOTUS_DIR ]]; then
+    if [[ ! -w "$LOTUS_DIR" ]]; then
         echo -n "Lotus requires write-permissions to this directory: "
         echo -e "$LOTUS_DIR"
         echo -e "Exiting."
