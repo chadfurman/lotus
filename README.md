@@ -1,4 +1,4 @@
-## Introduction to Lotus
+## Introduction to Lotus v0.0.1-alpha.1
 
 Lotus is simply a script runner with menus in a CLGUI (that's command-line graphical user interface...) All functionality beyond the initial load-up is provided by plugins. 
 

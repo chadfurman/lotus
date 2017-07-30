@@ -2,7 +2,7 @@
 
 DIR=${DIR:-"$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"}
 CONFIG=${CONFIG:-"$DIR/config"}
-VERSION=${VERSION:-"0.0.1"}
+VERSION=${VERSION:-"0.0.1-alpha.1"}
 DATA=${DATA:-"$DIR/data"}
 SAVED_DATA=${SAVED_DATA:-"$DIR/saved_data"}
 LIB=${LIB:-"$DIR/lib"}
