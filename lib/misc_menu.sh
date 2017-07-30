@@ -9,11 +9,6 @@ LIB=${LIB:-"$DIR"}
 misc_menu() {
 	init "$@"
 
-	if [ "$1" ]; then
-		handle_misc_menu "$1"
-		return $?
-	fi
-
 	tput setaf 69
 	tput cup $(($HEADER_HEIGHT+1)) $BASE_INDENT 
 	echo "Misc. Menu"
